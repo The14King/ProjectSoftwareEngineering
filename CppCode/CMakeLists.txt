@@ -3,13 +3,12 @@ project(CppCode)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(CppCode)
+add_executable(CppCode main.cpp)
 set(target CppCode)
 
 target_sources(
         ${target}
         PRIVATE
-        main.cpp
         src/DBconn.cpp
         src/MQTTconn.cpp
 )
