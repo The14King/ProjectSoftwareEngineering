@@ -21,7 +21,8 @@ app_key = ubinascii.unhexlify('D85E148856D86DB45DB888CAB77B96FC')
 dev_eui = ubinascii.unhexlify('70B3D57ED00581D2')
 max_humdity = 255
 send_delay = 60
-
+temp_offset = -6
+humd_offset = 0.4
 
 dht = SI7006A20()
 li = LTR329ALS01()
@@ -35,7 +36,6 @@ def lora_connection():
     while not lora.has_joined():
         set_led_red()
         time.sleep(2.5)
-
         print('Not yet joined...')
 
     set_led_green()
@@ -58,9 +58,17 @@ def calculate_pressure(pressure):
     return(pres)
 
 def calculate_temp(temp):
-    fulltemp = int(temp)
-    decimaltemp = int((temp - fulltemp)*10)
-    return(fulltemp,decimaltemp)
+    if(temp < 0):
+        minus = 1
+        temp = temp * (-1)
+        fulltemp = int(temp)
+        decimaltemp = int((temp - fulltemp)*10)
+    else:
+        fulltemp = int(temp)
+        decimaltemp = int((temp - fulltemp)*10)
+        minus = 0
+    fulltemp = fulltemp + temp_offset
+    return(fulltemp,decimaltemp,minus)
 
 def calculate_light(light):
     lightvalue = int(light)
@@ -73,19 +81,22 @@ def calculate_light(light):
     return(lightvalue)
 
 def calculate_humd(humdity):
-    if(humdity > 255):
-        humdity = 100
-    else:
-        humdity = int(humdity/(max_humdity/100))
+    humdity = humdity * humd_offset
+    humdity = int(humdity)
+    # if(humdity > 255):
+    #     humdity = 100
+    # else:
+    #     humdity = int(humdity/(max_humdity/100))
     return(humdity)
 
-def construct_payload(fulltemp,decimaltemp,pressure,humdity,light):
+def construct_payload(fulltemp,decimaltemp,pressure,humdity,light,minus):
     fulltempstruct = ustruct.pack('b',fulltemp)
     decitempstruct = ustruct.pack('b',decimaltemp)
     presstruct = ustruct.pack('b',pressure)
     humditystruct = ustruct.pack('b',humdity)
     lightstruct = ustruct.pack('b',light)
-    payload = presstruct + fulltempstruct + decitempstruct + lightstruct + humditystruct
+    minusstruct = ustruct.pack('b',minus)
+    payload = presstruct + fulltempstruct + decitempstruct + lightstruct + humditystruct + minusstruct
     return(payload)
 
 def set_led_red():
@@ -99,10 +110,10 @@ while 1:
         s = lora_connection()
         pressure,temp,light,humdity = receive_sensor_value()
         pressure = calculate_pressure(pressure)
-        fulltemp,decimaltemp = calculate_temp(temp)
+        fulltemp,decimaltemp,minus = calculate_temp(temp)
         light = calculate_light(light)
         humdity = calculate_humd(humdity)
-        s.send(construct_payload(fulltemp,decimaltemp,pressure,humdity,light))
+        s.send(construct_payload(fulltemp,decimaltemp,pressure,humdity,light,minus))
         time.sleep(send_delay);
     except:
         machine.reset()
