@@ -8,6 +8,7 @@ import ubinascii
 import struct
 import ustruct
 import math
+from unit_testing import *
 
 from LIS2HH12 import LIS2HH12
 from SI7006A20 import SI7006A20
@@ -21,7 +22,7 @@ app_key = ubinascii.unhexlify('D85E148856D86DB45DB888CAB77B96FC')
 dev_eui = ubinascii.unhexlify('70B3D57ED00581D2')
 max_humdity = 255
 send_delay = 60
-temp_offset = -6
+temp_offset = -7
 humd_offset = 0.4
 
 dht = SI7006A20()
@@ -54,7 +55,7 @@ def receive_sensor_value():
 
 def calculate_pressure(pressure):
     pres = pressure*0.01 -900
-    pres = int(pressure)
+    pres = int(pres)
     return(pres)
 
 def calculate_temp(temp):
@@ -105,7 +106,16 @@ def set_led_red():
 def set_led_green():
     pycom.rgbled(0x007f00)
 
+
 while 1:
+    # unit_test_calculate_temp_positive(temp_offset)
+    # unit_test_calculate_temp_negative(temp_offset)
+    # unit_test_calculate_light_low()
+    # unit_test_calculate_light_high()
+    # unit_test_calculate_humd(humd_offset)
+    # unit_test_construct_payload()
+    # unit_test_receive_sensor_value()
+    # unit_test_lora_join()
     try:
         s = lora_connection()
         pressure,temp,light,humdity = receive_sensor_value()
