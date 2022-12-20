@@ -5,27 +5,42 @@ import datetime
 import json
 import mysql.connector
 
-def lht_sensor_msg(mydb, db, test, device_id):
-    # SQL insert querries
+def queries_sql():
     payload_sql = "INSERT INTO payload (batV,bat_status,humidity,external_temp,internal_temp,received_at,airtime) VALUES (%s,%s,%s,%s,%s,%s,%s)"
     sensor_sql = "INSERT INTO sensor (device_id,latitude,longitude,altitude) VALUES (%s,%s,%s,%s)"
+    return payload_sql, sensor_sql
+
+
+def print_device(device_id):
+    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(f"[{now}] {device_id}")
+
+
+def lht_sensor_msg(mydb, db, test, device_id):
+    # SQL insert queries
+    payload_sql, sensor_sql = queries_sql()
 
     # Payload table data recollection
     batV = test['uplink_message']['decoded_payload']['BatV']
     bat_status = test['uplink_message']['decoded_payload']['Bat_status']
     humidity = test['uplink_message']['decoded_payload']['Hum_SHT']
-    external_temp = test['uplink_message']['decoded_payload']['TempC_DS']
-    internal_temp = test['uplink_message']['decoded_payload']['TempC_SHT']
+    light = test['uplink_message']['decoded_payload']['ILL_lx']
+    external_temp = test['uplink_message']['decoded_payload']['TempC_SHT']
     received_at = test['uplink_message']['received_at']
     received_at_decoded = received_at.split('.')[0]
     airtime = test['uplink_message']['consumed_airtime']
     airtime_decoded = airtime[0:8]
 
     # Sensor table data recollection
-    latitude, longitude, altitude = sensor_table_data(test)
+    if (device_id == 'lht-gronau'):
+        latitude = test['uplink_message']['rx_metadata'][0]['location']['latitude']
+        longitude = test['uplink_message']['rx_metadata'][0]['location']['longitude']
+        altitude = None
+    else:
+        latitude, longitude, altitude = sensor_table_data(test)
 
     # Data grouping
-    payload_val = (batV, bat_status, humidity, external_temp, internal_temp, received_at_decoded, airtime_decoded)
+    payload_val = (batV, bat_status, humidity, light, external_temp, received_at_decoded, airtime_decoded)
     sensor_val = (device_id, latitude, longitude, altitude)
 
     # SQL queries execution
@@ -36,13 +51,13 @@ def lht_sensor_msg(mydb, db, test, device_id):
     # Data table
     update_data_table(mydb, db)
 
-    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    print(f"[{now}] {device_id}")
+    # Debugging output
+    print_device(device_id)
+
 
 def py_sensor_msg(mydb, db, test, device_id):
-    # SQL insert querries
-    payload_sql = "INSERT INTO payload (internal_temp,pressure,light,received_at,airtime) VALUES (%s,%s,%s,%s,%s)"
-    sensor_sql = "INSERT INTO sensor (device_id,latitude,longitude,altitude) VALUES (%s,%s,%s,%s)"
+    # SQL insert queries
+    payload_sql, sensor_sql = queries_sql()
 
     # Payload table data recollection
     temp = test['uplink_message']['decoded_payload']['temperature']
@@ -68,8 +83,9 @@ def py_sensor_msg(mydb, db, test, device_id):
     # Data table
     update_data_table(mydb, db)
 
-    now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    print(f"[{now}] {device_id}")
+    # Debugging output
+    print_device(device_id)
+
 
 def sensor_table_data(test):
     # Sensor table data recollection
@@ -91,17 +107,25 @@ def update_data_table(mydb, db):
 
 
 def on_connect(client, userdata, flags, rc):
+    # Debug connection status
     print("Connected with result code " + str(rc))
+
+    # Connecting to all the different sensors
     client.subscribe("v3/project-software-engineering@ttn/devices/py-wierden/up")
     client.subscribe("v3/project-software-engineering@ttn/devices/py-saxion/up")
     client.subscribe("v3/project-software-engineering@ttn/devices/lht-wierden/up")
     client.subscribe("v3/project-software-engineering@ttn/devices/lht-gronau/up")
     client.subscribe("v3/project-software-engineering@ttn/devices/lht-saxion/up")
 
-def on_message(client, userdata,msg):
 
+def on_message(client, userdata,msg):
+    # Parsing json data
     test = json.loads(msg.payload)
+
+    # Getting device ID
     device_id = test['end_device_ids']['device_id']
+
+    # SQL connection
     mydb = mysql.connector.connect(
         host="database.discordbothosting.com",
         user="u1604_6WUWgkmAxW",
@@ -110,7 +134,7 @@ def on_message(client, userdata,msg):
     )
     db = mydb.cursor()
 
-
+    # Different data recollection depending on the device
     if(device_id == 'py-saxion' or device_id == 'py-wierden'):
         py_sensor_msg(mydb, db, test, device_id)
 
@@ -119,10 +143,8 @@ def on_message(client, userdata,msg):
         lht_sensor_msg(mydb, db, test, device_id)
 
     if (device_id == 'lht-saxion'):
-        # TODO change payload data recollection
         # SQL insert querries
-        payload_sql = "INSERT INTO payload (batV,bat_status,humidity,external_temp,internal_temp,received_at,airtime) VALUES (%s,%s,%s,%s,%s,%s,%s)"
-        sensor_sql = "INSERT INTO sensor (device_id,latitude,longitude,altitude) VALUES (%s,%s,%s,%s)"
+        payload_sql, sensor_sql = queries_sql()
 
         # Payload table data recollection
         batV = test['uplink_message']['decoded_payload']['BatV']
@@ -150,13 +172,8 @@ def on_message(client, userdata,msg):
         # Data table
         update_data_table(mydb, db)
 
-        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print(f"[{now}] {device_id}")
-
-
-
-
-
+        # Debug output
+        print_device(device_id)
 
 client = mqtt.Client()
 client.on_connect = on_connect
