@@ -5,10 +5,10 @@ import datetime
 import json
 import mysql.connector
 
-def queries_sql():
-    payload_sql = "INSERT INTO payload (batV,bat_status,humidity,external_temp,internal_temp,received_at,airtime) VALUES (%s,%s,%s,%s,%s,%s,%s)"
-    sensor_sql = "INSERT INTO sensor (device_id,latitude,longitude,altitude) VALUES (%s,%s,%s,%s)"
-    return payload_sql, sensor_sql
+
+def sensor_query():
+    query = "INSERT INTO sensor (device_id,latitude,longitude,altitude) VALUES (%s,%s,%s,%s)"
+    return query
 
 
 def print_device(device_id):
@@ -18,7 +18,8 @@ def print_device(device_id):
 
 def lht_sensor_msg(mydb, db, test, device_id):
     # SQL insert queries
-    payload_sql, sensor_sql = queries_sql()
+    payload_sql = "INSERT INTO payload (batV,bat_status,humidity,light,external_temp,received_at,airtime) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+    sensor_sql = sensor_query()
 
     # Payload table data recollection
     batV = test['uplink_message']['decoded_payload']['BatV']
@@ -57,7 +58,8 @@ def lht_sensor_msg(mydb, db, test, device_id):
 
 def py_sensor_msg(mydb, db, test, device_id):
     # SQL insert queries
-    payload_sql, sensor_sql = queries_sql()
+    sensor_sql = sensor_query()
+    payload_sql = "INSERT INTO payload (internal_temp,pressure,light,received_at,airtime) VALUES (%s, %s, %s,%s,%s)"
 
     # Payload table data recollection
     temp = test['uplink_message']['decoded_payload']['temperature']
@@ -94,6 +96,8 @@ def sensor_table_data(test):
     altitude = test['uplink_message']['rx_metadata'][0]['location']['altitude']
 
     return latitude,longitude,altitude
+
+
 def update_data_table(mydb, db):
     data_sql = "INSERT INTO data (payload_id,sensor_id) VALUES (%s,%s)"
 
@@ -116,6 +120,14 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("v3/project-software-engineering@ttn/devices/lht-wierden/up")
     client.subscribe("v3/project-software-engineering@ttn/devices/lht-gronau/up")
     client.subscribe("v3/project-software-engineering@ttn/devices/lht-saxion/up")
+
+
+# def on_connect2(client, userdata, flags, rc):
+#     # Debug connection status
+#     print("Connected with result code " + str(rc))
+#
+#     # Connecting to all the different sensors
+#     client.subscribe("#")
 
 
 def on_message(client, userdata,msg):
@@ -144,7 +156,8 @@ def on_message(client, userdata,msg):
 
     if (device_id == 'lht-saxion'):
         # SQL insert querries
-        payload_sql, sensor_sql = queries_sql()
+        payload_sql = "INSERT INTO payload (batV,bat_status,humidity,external_temp,internal_temp,received_at,airtime) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+        sensor_sql = sensor_query()
 
         # Payload table data recollection
         batV = test['uplink_message']['decoded_payload']['BatV']
@@ -181,5 +194,15 @@ client.on_message = on_message
 client.username_pw_set('project-software-engineering@ttn', 'NNSXS.DTT4HTNBXEQDZ4QYU6SG73Q2OXCERCZ6574RVXI.CQE6IG6FYNJOO2MOFMXZVWZE4GXTCC2YXNQNFDLQL4APZMWU6ZGA')
 client.connect("eu1.cloud.thethings.network", 1883, 60)
 
+# client2 = mqtt.Client()
+# client2.on_connect = on_connect2
+# client2.on_message = on_message
+# client2.username_pw_set('group-1-project-software@ttn', 'NNSXS.U2ZBDOUHEIAQ6WGOOZH44PNDYE7NHT2PNQFEXXY.VZ6HGVZQW4DCQB3DJHWI4CTPIQB2PVRLB7MYSU7CCODBHU6TQGBA')
+# client2.connect("eu1.cloud.thethings.network", 1883, 60)
+
 #The loop cheking for new payload and after formating prints the needed information
-client.loop_forever()
+client.loop_start()
+# client2.loop_start()
+
+while True:
+    None
