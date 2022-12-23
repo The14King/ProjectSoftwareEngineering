@@ -28,4 +28,9 @@ mqtt_client2.start()
 
 
 while True:
-    None
+    x = input()
+    if x == 'quit' or x == 'q' or x == 'exit':
+        break
+
+mqtt_client1.stop()
+mqtt_client2.stop()
