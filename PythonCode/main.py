@@ -126,8 +126,8 @@ def on_connect(client, userdata, flags, rc):
 #     # Debug connection status
 #     print("Connected with result code " + str(rc))
 #
-#     # Connecting to all the different sensors
-#     client.subscribe("#")
+#     # Connecting to all the different sensors.
+#     client.subscribe("v3/group-1-project-software@ttn/devices/eui-70b3d57ed00581d2/up")
 
 
 def on_message(client, userdata,msg):
