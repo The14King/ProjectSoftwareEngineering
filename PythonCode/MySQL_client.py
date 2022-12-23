@@ -1,6 +1,3 @@
-import paho.mqtt.client as mqtt
-import datetime
-import json
 import mysql.connector
 
 
@@ -27,8 +24,3 @@ class MySQL_client:
 
         self.db.execute(data_sql, data_val)
         self.mydb.commit()
-#
-# def insert_querries():
-#     payload_sql = "INSERT INTO payload (batV,bat_status,humidity,external_temp,internal_temp,received_at,airtime) VALUES (%s,%s,%s,%s,%s,%s,%s)"
-#     sensor_sql = "INSERT INTO sensor (device_id,latitude,longitude,altitude) VALUES (%s,%s,%s,%s)"
-#     return payload_sql, sensor_sql

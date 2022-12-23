@@ -1,7 +1,6 @@
 import paho.mqtt.client as mqtt
 import datetime
 import json
-import mysql.connector
 import MySQL_client
 
 class MQTT_client:
@@ -20,12 +19,6 @@ class MQTT_client:
         # Connecting to all the different sensors
         for sub in self.subscriptions:
             client.subscribe(sub)
-
-        # client.subscribe("v3/project-software-engineering@ttn/devices/py-wierden/up")
-        # client.subscribe("v3/project-software-engineering@ttn/devices/py-saxion/up")
-        # client.subscribe("v3/project-software-engineering@ttn/devices/lht-wierden/up")
-        # client.subscribe("v3/project-software-engineering@ttn/devices/lht-gronau/up")
-        # client.subscribe("v3/project-software-engineering@ttn/devices/lht-saxion/up")
 
     def on_message(self, client, userdata, msg):
         # Parsing json data
