@@ -44,6 +44,16 @@ class MQTT_client:
             payload_sql = "INSERT INTO payload (internal_temp,pressure,light,received_at,airtime) VALUES (%s, %s, %s,%s,%s)"
             payload_val = (temp, pres, light, received_at_decoded, airtime_decoded)
 
+        if(device_id == 'eui-70b3d57ed00581d2'):
+            humidity = data['uplink_message']['decoded_payload']['humdity']
+            temp = data['uplink_message']['decoded_payload']['temperature']
+            light = data['uplink_message']['decoded_payload']['light']
+            pres = data['uplink_message']['decoded_payload']['pressure']
+
+            payload_sql = "INSERT INTO payload (humidity,internal_temp,pressure,light,received_at,airtime) VALUES (%s, %s, %s,%s,%s)"
+            payload_val = (humidity,temp, pres, light, received_at_decoded, airtime_decoded)
+
+
         if (device_id == 'lht-wierden' or device_id == 'lht-gronau'):
 
             batV = data['uplink_message']['decoded_payload']['BatV']

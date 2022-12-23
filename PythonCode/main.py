@@ -18,12 +18,14 @@ mqtt_client1 = MQTT_client(subscriptions1, sql_client,
                            "NNSXS.DTT4HTNBXEQDZ4QYU6SG73Q2OXCERCZ6574RVXI.CQE6IG6FYNJOO2MOFMXZVWZE4GXTCC2YXNQNFDLQL4APZMWU6ZGA",
                            "eu1.cloud.thethings.network")
 
-mqtt_client1.start()
+mqtt_client2 = MQTT_client(subscriptions2, sql_client,
+                           "group-1-project-software@ttn",
+                           "NNSXS.U2ZBDOUHEIAQ6WGOOZH44PNDYE7NHT2PNQFEXXY.VZ6HGVZQW4DCQB3DJHWI4CTPIQB2PVRLB7MYSU7CCODBHU6TQGBA",
+                           "eu1.cloud.thethings.network")
 
-# mqtt_client2 = MQTT_client(subscriptions2, sql_client,
-#                            "group-1-project-software@ttn",
-#                            "NNSXS.U2ZBDOUHEIAQ6WGOOZH44PNDYE7NHT2PNQFEXXY.VZ6HGVZQW4DCQB3DJHWI4CTPIQB2PVRLB7MYSU7CCODBHU6TQGBA",
-#                            "eu1.cloud.thethings.network")
+mqtt_client1.start()
+mqtt_client2.start()
+
 
 while True:
     None
