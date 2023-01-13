@@ -32,3 +32,6 @@ class MySQL_client:
         # Execute the SQL INSERT query
         self.db.execute(data_sql, data_val)
         self.mydb.commit()
+
+    def reconnect(self):
+        return self.mydb.ping(reconnect=True, attempts=1, delay=0)

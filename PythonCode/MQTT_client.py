@@ -62,7 +62,7 @@ class MQTT_client:
             pres = data['uplink_message']['decoded_payload']['pressure']
 
             # Inserting data into the payload table
-            payload_sql = "INSERT INTO payload (humidity,internal_temp,pressure,light,received_at,airtime) VALUES (%s, %s, %s,%s,%s)"
+            payload_sql = "INSERT INTO payload (humidity,internal_temp,pressure,light,received_at,airtime) VALUES (%s, %s, %s,%s,%s,%s)"
             payload_val = (humidity,temp, pres, light, received_at_decoded, airtime_decoded)
 
         if (device_id == 'lht-wierden' or device_id == 'lht-gronau'):
@@ -121,6 +121,9 @@ class MQTT_client:
         self.client.connect(self.host, 1883, 60)
 
         self.client.loop_start()
+
+        if self.client.is_connected():
+            print("Connected to MQTT broker")
 
     def stop(self):
         self.client.loop_stop()

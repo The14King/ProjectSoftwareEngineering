@@ -32,7 +32,9 @@ mqtt_client2.start()
 
 # Keep the main thread alive
 while True:
-    x = input("$: ")
+    x = input("$: ").lower()
+    if x == "re sql":
+        sql_client.reconnect()
     if x == 'quit' or x == 'q' or x == 'exit':
         break
 

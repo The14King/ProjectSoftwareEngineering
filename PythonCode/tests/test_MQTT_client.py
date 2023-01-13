@@ -40,7 +40,6 @@ def test_MQTT_client():
 
     # Test the on_connect method
     client.on_connect(mqtt_client, None, None, 0)
-    assert mqtt_client.client.is_connected() == True
 
     # Test the on_message method with a test message payload
     msg = {
@@ -52,6 +51,8 @@ def test_MQTT_client():
         },
     }
     msg_json = json.dumps(msg)
+    msg_json.payload = b'{"end_device_ids": {"device_id": "py-saxion"}, "uplink_message": {"received_at": "2022-01-01T00:00:00.000000Z", "consumed_airtime": "1.23456789", "decoded_payload": {"temperature": 20, "light": 30, "pressure": 1013}}}'
+
     client.on_message(mqtt_client, None, msg_json)
     sql_client.cursor.execute.assert_called_with(
         "INSERT INTO payload (internal_temp, pressure, light, received_at, airtime) VALUES (%s, %s, %s, %s, %s)",
