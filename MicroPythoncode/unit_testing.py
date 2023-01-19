@@ -1,139 +1,148 @@
-
+///\author Twan Wieggers
 def unit_test_calculate_pressure():
-    # Import the calculate_pressure() function from the main module
+    """
+    Test the calculate_pressure() function from the main module
+
+    @param pres: test input pressure
+    @type pres: float
+    @return: whether the test passed or failed
+    @rtype: str
+    """
     from main import calculate_pressure
 
-    # Test input
     pres = 100400
-    # Expected output
     expected_value = 104
 
-    # Compare the function's output to the expected value
     if(calculate_pressure(pres) == expected_value):
-        # If the output matches the expected value, the unit test has passed
         print("unit test calculate pressure is GOOD")
     else:
-        # If the output does not match the expected value, the unit test has failed
         print("unit test caclulate pressure if FAILED")
 
 
 def unit_test_calculate_temp_positive(temp_offset):
-    # Import the calculate_temp() function from the main module
+    """
+    Test the calculate_temp() function from the main module with positive input temperature
+
+    @param temp: test input temperature
+    @type temp: float
+    @param temp_offset: the temperature offset
+    @type temp_offset: int
+    @return: whether the test passed or failed
+    @rtype: str
+    """
     from main import calculate_temp
 
-    # Test input
     temp = 20.7
-    # Expected output
     expected_value_fulltemp = 20 + temp_offset
     expected_value_decimaltemp = 7
     expected_value_minus = 0
 
-    # Get the function's output
     fulltemp,decimaltemp,minus = calculate_temp(temp)
 
-    # Compare the function's output to the expected values
     if(fulltemp == expected_value_fulltemp and decimaltemp == expected_value_decimaltemp and minus == expected_value_minus):
-        # If the output matches the expected values, the unit test has passed
         print("unit test calculate temperature positive is GOOD")
     else:
-        # If the output does not match the expected values, the unit test has failed
         print("unit test calculate temperature positive if FAILED")
 
 
 def unit_test_calculate_temp_negative(temp_offset):
-    # Import the calculate_temp function from the main module
+    """
+    Test the calculate_temp() function from the main module with negative input temperature
+
+    @param temp: test input temperature
+    @type temp: float
+    @param temp_offset: the temperature offset
+    @type temp_offset: int
+    @return: whether the test passed or failed
+    @rtype: str
+    """
     from main import calculate_temp
 
-    # Set the input temperature to -20.7
     temp = -20.7
-
-    # Calculate the expected output values based on the input temperature and temp_offset
     expected_value_fulltemp = 20 + temp_offset
     expected_value_decimaltemp = 7
     expected_value_minus = 1
 
-    # Call the calculate_temp function with the input temperature
     fulltemp, decimaltemp, minus = calculate_temp(temp)
 
-    # Compare the returned values to the expected output values
     if fulltemp == expected_value_fulltemp and decimaltemp == expected_value_decimaltemp and minus == expected_value_minus:
-        # If all values match, print a success message
         print("unit test calculate temperature positive is GOOD")
     else:
-        # If any values do not match, print a failure message
         print("unit test calculate temperature positive if FAILED")
 
 
 def unit_test_calculate_light_low():
-    # Import the calculate_light function from the main module
+    """
+    Test the calculate_light() function from the main module with a low input light value
+
+    @param light: test input light value
+    @type light: int
+    @return: whether the test passed or failed
+    @rtype: str
+    """
     from main import calculate_light
 
-    # Set the input light value to 100
     light = 100
-
-    # Set the expected output value to 100
     expected_value = 100
 
-    # Call the calculate_light function with the input light value
     reallight = calculate_light(light)
 
-    # Compare the returned value to the expected output value
     if reallight == expected_value:
-        # If the values match, print a success message
         print("unit test calculate low light is GOOD")
     else:
-        # If the values do not match, print a failure message
         print("unit test calculate low light if FAILED")
 
 
 def unit_test_calculate_light_high():
-    # Import the calculate_light function from the main module
-    from main import calculate_light
+    """
+    Test the calculate_light() function from the main module with a high input light value
 
-    # Import the math module
+    @param light: test input light value
+    @type light: int
+    @return: whether the test passed or failed
+    @rtype: str
+    """
+    from main import calculate_light
     import math
 
-    # Set the input light value to 350
     light = 350
-
-    # Calculate the expected output value using the math.log function
     expected_value = int(round(math.log(light,1.04),0))
 
-    # Call the calculate_light function with the input light value
     reallight = calculate_light(light)
 
-    # Compare the returned value to the expected output value
     if reallight == expected_value:
-        # If the values match, print a success message
         print("unit test calculate high light is GOOD")
     else:
-        # If the values do not match, print a failure message
         print("unit test calculate high light if FAILED")
 
 
-def unit_test_calculate_humd(hum_offset):
-    # Import the calculate_humd function from the main module
+def unit_test_calculate_humd():
+    """
+    Test the calculate_humd() function from the main module
+
+    @param humdity: test input humidity value
+    @type humdity: float
+    @param humd_offset: the humidity offset
+    @type humd_offset: float
+    @return: whether the test passed or failed
+    @rtype: str
+    """
     from main import calculate_humd
+    humdity = 50.5
+    expected_value = int(humdity*humd_offset)
 
-    # Set the input humidity value to 50
-    hum = 50
+    realhumd = calculate_humd(humdity)
 
-    # Calculate the expected output value using the hum_offset parameter
-    expected_value = hum * hum_offset
-
-    # Call the calculate_humd function with the input humidity value
-    calculated_value = calculate_humd(hum)
-
-    # Compare the returned value to the expected output value
-    if expected_value == calculated_value:
-        # If the values match, print a success message
+    if realhumd == expected_value:
         print("unit test calculate humdity is GOOD")
     else:
-        # If the values do not match, print a failure message
         print("unit test calculate humdity if FAILED")
 
 
 def unit_test_construct_payload():
+    """
+    Test the construct_payload function from the main module.
+    """
     # Import the construct_payload function and the ustruct module
     from main import construct_payload
     import ustruct
@@ -160,7 +169,13 @@ def unit_test_construct_payload():
         # If the values are different, the test failed
         print("unit test construct_payload if FAILED")
 
+
 def unit_test_lora_join():
+    """
+    Attempts to connect to a LoRa network using the `lora_connection()` function from the main module.
+
+    Prints a message to the console and opens the The Things Network application to check if the sensor can join.
+    """
     # Import the lora_connection function from the main module
     from main import lora_connection
 
@@ -172,7 +187,13 @@ def unit_test_lora_join():
     lora_connection()
 
 
+
 def unit_test_receive_sensor_value():
+    """
+    Test function to check if the sensor can receive sensor values.
+
+    @return None
+    """
     # Import the receive_sensor_value function from the main module
     from main import receive_sensor_value
 
